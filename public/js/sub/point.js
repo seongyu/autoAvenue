@@ -24,7 +24,6 @@ angular.module('autoAvenue.controller',[])
                     if(rtn.resultCode!=200){
                         alert(rtn.message);
                     }else{
-                        console.log(rtn)
                         $scope.total = rtn.result.total;
                         $scope.totalPage = rtn.result.totalPage;
                         $scope.items = rtn.result.rows;
