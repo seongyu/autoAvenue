@@ -110,10 +110,10 @@ exports.usePnt = function(req, res) {
 
 exports.statPntAll = function(req, res) {
     var param = req.body;
-    var getParam = {
-        limit : param.limit?param.limit:20,
-        page : param.page?param.page:0
-    };
+    var limit = param.limit?parseInt(param.limit):20;
+    var page = param.page?param.page:0;
+    var pageS = limit*parseInt(page);
+    var getParam = {};
     var result = {
         nowPage :0,
         totalPage : 0,
@@ -134,10 +134,11 @@ exports.statPntAll = function(req, res) {
             param.pntType?getParam.pntType = param.pntType : null;
             point_model.statPntCnt(getParam)
             .then(function(rows){
-                    result.nowPage = getParam.page;
-                    result.totalPage = Math.ceil(rows[0].countNum/getParam.limit);
+                    result.nowPage = page;
+                    result.totalPage = Math.ceil(rows[0].countNum/limit);
                     result.total = rows[0].countNum;
-
+                    getParam.page = pageS;
+                    getParam.limit = limit;
                     point_model.statPntAll(getParam)
                         .then(function(rows){
                             result.rows = rows;

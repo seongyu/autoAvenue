@@ -3,7 +3,7 @@
  */
 angular.module('autoAvenue.controller',[])
 .controller('pointCtrl',function($scope,Request,$rootScope){
-        $scope.search = {limit:15};
+        $scope.search = {limit:5};
         $scope.items = [];
 
         $scope.total = 0;
@@ -18,6 +18,7 @@ angular.module('autoAvenue.controller',[])
         $scope.getList = function(search,page){
             $rootScope.savedPage = page;
             search.page = page;
+            $scope.selectPage = page;
             Request.post('statPntAll',search)
                 .then(function(rtn){
                     if(rtn.resultCode!=200){
