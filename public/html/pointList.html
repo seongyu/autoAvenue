@@ -1,0 +1,76 @@
+
+<div class="listPannel">
+    <form class="form-inline formPannel">
+        <div class="form-group">
+            <select ng-model="search.memCd" class="form-control">
+                <option value="">검색어선택</option>
+                <option value="1">휴대폰번호</option>
+                <option value="2">이메일</option>
+            </select>
+            <div class="input-group">
+                <div class="input-group-addon">검색어 입력</div>
+                <input type="text" class="form-control" ng-model="search.memInfo" placeholder="ex>이메일,연락처">
+            </div>
+            <select ng-model="search.pntType" class="form-control">
+                <option value="">전체</option>
+                <option value="1">포인트 적립</option>
+                <option value="2">포인트 사용</option>
+            </select>
+        </div>
+        <button ng-click="find(search)" class="btn btn-primary setBtnBlock">검색</button>
+    </form>
+    <table class="table table-bordered table-striped text-center">
+        <thead>
+            <tr>
+                <th class="xsHide"></th>
+                <th>고객정보</th>
+                <th>포인트</th>
+                <th>처리</th>
+                <th class="xsHide">전체포인트</th>
+                <th>발생일</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="item in items">
+                <td class="xsHide">{{item.pntSeq}}</td>
+                <td>{{item.memName}}<span class="xsHide"><br>{{item.memEmail}}<br>{{item.memPne}}</span></td>
+                <td>{{item.memPnt | currency : '':0}}</td>
+                <td><label class="label {{item.status==1?'label-primary':
+                item.status==2?'label-success':
+                item.status==7?'label-danger':'label-warning'}}">
+                    {{item.status==1?'적립':
+                    item.status==2?'사용':
+                    item.status==3?'정액쿠폰':
+                    item.status==4?'포인트반환':
+                    item.status==5?'이벤트포인트':
+                    item.status==6?'결제취소':
+                    item.status==7?'기간만료':
+                    item.status==8?'관리자 적립':'관리자 차감'}}
+                </label></td>
+                <td class="xsHide">{{item.totPnt | currency : '':0}}</td>
+                <td>{{item.regDt | amDateFormat:'YYYY-MM-DD'}}</td>
+            </tr>
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="6">
+                    <div style="text-align: center;">
+                        <ul class="pagination">
+                            <li aria-label="Previous" style="display:{{nowPage*defaultPage==0?'none':''}}" ng-click="prev()">
+                                <span aria-hidden="true">&laquo;</span>
+                            </li>
+                            <li class="{{selectPage==nowPage*defaultPage?'active':''}}" ng-click="getList(search,nowPage*defaultPage)"><a>{{nowPage*defaultPage+1}}</a></li>
+                            <li class="{{selectPage==nowPage*defaultPage+1?'active':''}}" style="display:{{nowPage*defaultPage+1>=totalPage?'none':''}}" ng-click="getList(search,nowPage*defaultPage+1)"><a>{{nowPage*defaultPage+2}}</a></li>
+                            <li class="{{selectPage==nowPage*defaultPage+2?'active':''}}" style="display:{{nowPage*defaultPage+2>=totalPage?'none':''}}" ng-click="getList(search,nowPage*defaultPage+2)"><a>{{nowPage*defaultPage+3}}</a></li>
+                            <li class="{{selectPage==nowPage*defaultPage+3?'active':''}}" style="display:{{nowPage*defaultPage+3>=totalPage?'none':''}}" ng-click="getList(search,nowPage*defaultPage+3)"><a>{{nowPage*defaultPage+4}}</a></li>
+                            <li class="{{selectPage==nowPage*defaultPage+4?'active':''}}" style="display:{{nowPage*defaultPage+4>=totalPage?'none':''}}" ng-click="getList(search,nowPage*defaultPage+4)"><a>{{nowPage*defaultPage+5}}</a></li>
+                            <li aria-label="Next" style="display:{{nowPage*defaultPage+4>=totalPage?'none':''}}" ng-click="next()">
+                                <span aria-hidden="true">&raquo;</span>
+                            </li>
+                        </ul>
+                    </div>
+                </td>
+            </tr>
+        </tfoot>
+    </table>
+</div>

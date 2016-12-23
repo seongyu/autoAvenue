@@ -1,0 +1,53 @@
+body {
+  padding: 50px;
+  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+  background-color: #284a88;
+}
+
+@media (max-width: 580px) {
+  .xsHide{
+    display:none;
+  }
+  .listPannel{
+    padding: 5px !important;
+  }
+}
+
+@media (max-width:768px){
+  .setBtnBlock{
+    width:100%;
+  }
+}
+
+.formPannel{
+  margin-bottom: 32px;
+  background-color: white;
+  padding: 10px;
+  border: 1px solid #d8d8d8;
+  border-radius: 5px;
+}
+
+.loginPannel{
+  height: 300px;
+  background-color: #e8f0f3;
+  border-radius: 5px;
+  padding: 45px;
+  text-align: center;
+}
+.loginPannel input{
+  margin-top: 24px;
+  margin-bottom: 24px;
+}
+.listPannel{
+  background-color: #e8f0f3;
+  border-radius: 5px;
+  padding: 45px;
+}
+
+table{
+  background-color: whitesmoke;
+}
+
+th {
+  text-align: center;
+}

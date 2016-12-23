@@ -4,10 +4,8 @@
 var index = require('../models');
 
 exports.get = function(req, res) {
-    index.get()
-    .then(function(rtn){
-            res.send({status:200,data:rtn});
-        },function(err){
-            res.send({status:500,message:err});
-        })
+    res.render('index', {
+        title: 'AutoAvenue',
+        env : process.env.NODE_ENV
+    });
 };
