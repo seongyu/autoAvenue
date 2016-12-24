@@ -121,8 +121,6 @@ exports.statPntAll = function(req, res) {
     };
     user_model.getUser(param)
         .then(function(rtn){
-            console.log(param)
-            console.log(rtn)
             if(param.memCd&&rtn.length==0){
                 result.rows = [];
                 res.send({
