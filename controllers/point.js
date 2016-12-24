@@ -25,7 +25,7 @@ exports.addPnt = function(req, res) {
             var defer = promise.defer();
             if(rtn.length!=1){
                 defer.reject();
-                return;
+                return defer.promise;
             }
             pointParam.memSeq = rtn[0].memSeq;
             pointParam.addPnt = param.addPnt;
@@ -37,25 +37,24 @@ exports.addPnt = function(req, res) {
                     defer.resolve({status:false})
                 });
             return defer.promise;
-        })
-    .done(function(rtn){
-        if(!rtn.status){
+        }).done(function(rtn){
+            if(!rtn.status){
+                res.send({
+                    resultCode : 500,
+                    message : message[500]
+                })
+            }else{
+                res.send({
+                    resultCode : 200,
+                    result : null
+                })
+            }
+        },function(err){
             res.send({
-                resultCode : 500,
-                message : message[500]
+                resultCode : 501,
+                message : message[501]
             })
-        }else{
-            res.send({
-                resultCode : 200,
-                result : null
-            })
-        }
-    },function(err){
-        res.send({
-            resultCode : 501,
-            message : message[501]
         })
-    })
 };
 
 exports.usePnt = function(req, res) {
@@ -74,7 +73,7 @@ exports.usePnt = function(req, res) {
             var defer = promise.defer();
             if(rtn.length!=1){
                 defer.reject();
-                return;
+                return defer.promise;
             }
             pointParam.memSeq = rtn[0].memSeq;
             pointParam.usePnt = param.usePnt;
@@ -87,8 +86,7 @@ exports.usePnt = function(req, res) {
                     defer.resolve({status:false,message:err.message})
                 });
             return defer.promise;
-        })
-        .done(function(rtn){
+        }).done(function(rtn){
             if(!rtn.status){
                 res.send({
                     resultCode : 500,
