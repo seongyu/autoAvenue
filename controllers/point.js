@@ -119,10 +119,11 @@ exports.statPntAll = function(req, res) {
         totalPage : 0,
         total : 0
     };
-
     user_model.getUser(param)
         .then(function(rtn){
-            if(param.memCd&&param.memInfo){
+            console.log(param)
+            console.log(rtn)
+            if(param.memCd&&rtn.length==0){
                 result.rows = [];
                 res.send({
                     resultCode : 200,

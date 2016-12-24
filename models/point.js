@@ -77,14 +77,14 @@ exports.statPntCnt = function(param){
     'left join tblMem as tm on tp.memSeq = tm.memSeq ';
 
     if(param.memSeq&&param.pntType){
-        sql+='where tp.memSeq = ? and tp.status = ?';
+        sql+='where tp.memSeq = ? and tp.status = ? ';
         getParam.push(param.memSeq,param.pntType);
     }else if(param.memSeq){
-        sql+='where tp.memSeq = ?';
+        sql+='where tp.memSeq = ? ';
 
         getParam.push(param.memSeq);
     }else if(param.pntType){
-        sql+='where tp.status = ?';
+        sql+='where tp.status = ? ';
 
         getParam.push(param.pntType);
     }
@@ -100,14 +100,14 @@ exports.statPntAll = function(param){
     'left join tblMem as tm on tp.memSeq = tm.memSeq ';
 
      if(param.memSeq&&param.pntType){
-         sql+='where tp.memSeq = ? and tp.status = ?';
+         sql+='where tp.memSeq = ? and tp.status = ? ';
          getParam.push(param.memSeq,param.pntType);
      }else if(param.memSeq){
-         sql+='where tp.memSeq = ?';
+         sql+='where tp.memSeq = ? ';
 
          getParam.push(param.memSeq);
      }else if(param.pntType){
-         sql+='where tp.status = ?';
+         sql+='where tp.status = ? ';
 
          getParam.push(param.pntType);
      }
