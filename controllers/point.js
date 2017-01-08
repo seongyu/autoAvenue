@@ -5,9 +5,12 @@ var user_model = require('../models/user');
 var point_model = require('../models/point');
 var moment = require('moment');
 var promise = require('q');
-var Util = require('../public/lib/util'),
-    config = Util.config,
-    message = Util.message;
+var fs = require('fs');
+var xlsx = require('node-xlsx').default;
+var _Util = require('../public/lib/util'),
+    config = _Util.config,
+    util = _Util.util,
+    message = _Util.message;
 
 exports.addPnt = function(req, res) {
     var param = req.body;
@@ -161,4 +164,134 @@ exports.statPntAll = function(req, res) {
 
 exports.hc = function(req, res) {
     res.send({status:200});
+};
+
+exports.memInfo = function(req,res){
+    var param = req.body;
+    var token = req.params.token;
+    var memParam = {};
+    if(token==config.sampleAdmin.token){
+        memParam.upId = config.sampleAdmin.adminSeq;
+    }else if(token==config.leonAdmin.token){
+        memParam.upId = config.leonAdmin.adminSeq;
+    }
+
+    var result = {resultCode:200};
+
+    if(!param.memEmail){
+        result.message='M03';
+        res.send(result);
+        return null;
+    }
+
+    var infoRmkCd = param.infoRmkCd;
+    user_model.getUser({memCd:'2',memInfo:param.memEmail})
+        .then(function(rtn){
+            if(infoRmkCd==1){  //join
+                if(rtn.length>0){
+                    result.message='M02';
+                    res.send(result);
+                    return null;
+                }
+            }else{             //udt / del
+                if(rtn.length==0){
+                    result.message='M03';
+                    res.send(result);
+                    return null;
+                }
+                param.memSeq = rtn[0].memSeq;
+            }
+
+            writeBatch(param).then(function(){
+                res.send(result);
+            });
+        });
+};
+
+exports.stepbatch = function(req,res){
+    var xlsx_obj = ['comGrp','comCd','memPne','memEmail','memName','infoRmkCd','timeStp','resultCode'];
+    var batchUrl = config.fsUrl+ moment().format('YYYY-MM-DD') +'_batchFile';
+    try{
+        var row = fs.readFileSync(batchUrl,'utf8');
+        row = '['+row+']';
+        var array = JSON.parse(row);
+        var idx = 0;
+        util.loop(function(){return idx<array.length;},function(){
+            var defer = promise.defer();
+            user_model.editUser(array[idx])
+                .then(function(){
+                    array[idx].resultCode = 200;
+                    return true;
+                },function(){
+                    array[idx].resultCode = 500;
+                    return false;
+                }).then(function(rtt){
+                    if(rtt){
+                        user_model.editCar(array[idx])
+                            .then(function(){
+                                idx++;
+                                defer.resolve();
+                            },function(err){
+                                console.log(err)
+                            })
+                    }else{
+                        idx++;
+                        defer.resolve();
+                    }
+                });
+            return defer.promise;
+        }).then(function(){
+
+            var arr = util.parse_xlsx(array,xlsx_obj);
+            var buffer = xlsx.build([{name: 'result', data: arr}]);
+            var filename = config.fsUrl + moment().format('YYYY-MM-DD') +'_result.xlsx';
+            fs.writeFile(filename, buffer, function (err) {
+                //fs.unlinkSync(batchUrl);
+                res.setHeader('Content-disposition', 'attachment; filename=' + filename);
+                res.download(filename);
+            });
+        })
+    }catch(exception){
+        //fs.unlinkSync(batchUrl);
+        res.send({resultCode:500,message:message[500]});
+    }
+};
+/**
+ try{
+        var array = JSON.parse(param.array);
+    }catch(exception){
+        result.status = 502;
+        result.message = message[502];
+        res.send(result);
+        return;
+    }
+ */
+
+var writeBatch = function(obj){
+    obj = JSON.stringify(obj);
+    var defer = promise.defer();
+    var file_url = config.fsUrl+ moment().format('YYYY-MM-DD') +'_batchFile';
+    fs.exists(file_url, function(isExists){
+        if(isExists){
+            obj = ','+obj;
+            fs.appendFile(file_url,obj,function(err){
+                if(err){
+                    console.log(err);
+                    defer.reject();
+                    return;
+                }
+                defer.resolve();
+            })
+        }else{
+            fs.writeFile(file_url,obj,function(err){
+                if(err){
+                    console.log(err);
+                    defer.reject();
+                    return;
+                }
+                defer.resolve();
+            })
+        }
+    });
+    return defer.promise;
 };

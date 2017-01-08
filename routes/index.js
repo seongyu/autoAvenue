@@ -9,5 +9,7 @@ router.post('/:token/addPnt',point.addPnt);
 router.post('/:token/usePnt',point.usePnt);
 router.post('/:token/statPntAll',point.statPntAll);
 router.post('/:token/hc',point.hc);
+router.post('/:token/memInfo',point.memInfo);
+router.get('/:token/stepbatch',point.stepbatch);
 
 module.exports = router;
