@@ -2,15 +2,46 @@
  * Created by LeonKim on 16. 12. 23..
  */
 var Q = require('q'), config = {}, util = {};
-
-exports.message = {
-    500 : 'Error : Processing denied',
-    501 : 'Error : Unavailable Parameter exists',
-    502 : 'Error : Parameter error'
-};
+var md5 = require('md5'),promise = require('q'),
+    user_model = require('../../models/user');
 
 exports.config = config;
 exports.util = util;
+exports.message = {
+    500 : 'Error : Processing denied',
+    501 : 'Error : Unavailable Parameter exists',
+    502 : 'Error : Parameter error',
+    503 : 'Error : Permission denied'
+};
+
+util.check_permission = function(token){
+    var defer = promise.defer();
+    var result = {status:false};
+    if(token==config.sampleAdmin.token){
+        result.status=true;
+        result.adminSeq = config.sampleAdmin.adminSeq;
+        result.admNm = config.sampleAdmin.admNm;
+    }else if(token==config.leonAdmin.token){
+        result.status=true;
+        result.adminSeq = config.leonAdmin.adminSeq;
+        result.admNm = config.leonAdmin.admNm;
+    }else if(token.indexOf('@')>0){
+        user_model.check_permission({memEmail:token})
+            .then(function(rtn){
+                if(rtn.length==1){
+                    var rt = rtn[0];
+                    result.status=true;
+                    result.adminSeq=rt.adminSeq;
+                    result.admNm=rt.admNm;
+                    defer.resolve(result);
+                }else{
+                    defer.resolve(result);
+                }
+            })
+    }
+    return defer.promise;
+};
+
 config.fsUrl = 'public/data/';
 config.sampleAdmin = {
     token : '098f6bcd4621d373cade4e832627b4f6',

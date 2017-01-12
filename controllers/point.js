@@ -3,110 +3,161 @@
  */
 var user_model = require('../models/user');
 var point_model = require('../models/point');
-var moment = require('moment');
-var promise = require('q');
-var fs = require('fs');
-var xlsx = require('node-xlsx').default;
+var moment = require('moment'), promise = require('q'), fs = require('fs'),
+    crypto = require('crypto'), xlsx = require('node-xlsx').default;
 var _Util = require('../public/lib/util'),
     config = _Util.config,
     util = _Util.util,
     message = _Util.message;
 
+/**
+ function encrypt(text){
+  var cipher = crypto.createCipher(algorithm,password)
+  var crypted = cipher.update(text,'utf8','hex')
+  crypted += cipher.final('hex');
+  return crypted;
+}
+
+ function decrypt(text){
+  var decipher = crypto.createDecipher(algorithm,password)
+  var dec = decipher.update(text,'hex','utf8')
+  dec += decipher.final('utf8');
+  return dec;
+}
+ * */
+/*
+
+var key = 'myKey';      // 암호화, 복호화를 위한 키
+var input = 'node.js';  // 암호화할 대상
+
+// 암호화
+var cipher = crypto.createCipher('aes192', key);    // Cipher 객체 생성
+cipher.update(input, 'utf8', 'base64');             // 인코딩 방식에 따라 암호화
+var cipheredOutput = cipher.final('base64');        // 암호화된 결과 값
+
+// 복호화
+var decipher = crypto.createDecipher('aes192', key); // Decipher 객체 생성
+decipher.update(cipheredOutput, 'base64', 'utf8');   // 인코딩 방식에 따라 복호화
+var decipheredOutput = decipher.final('utf8');       // 복호화된 결과 값
+
+// 출력
+console.log('기존 문자열: ' + input);
+console.log('암호화된 문자열: ' + cipheredOutput);
+console.log('복호화된 문자열: ' + decipheredOutput);
+
+*/
+
+
 exports.addPnt = function(req, res) {
     var param = req.body;
     var token = req.params.token;
-    var pointParam = {};
-    if(token==config.sampleAdmin.token){
-        pointParam.adminSeq = config.sampleAdmin.adminSeq;
-        pointParam.admNm = config.sampleAdmin.admNm;
-    }else if(token==config.leonAdmin.token){
-        pointParam.adminSeq = config.leonAdmin.adminSeq;
-        pointParam.admNm = config.leonAdmin.admNm;
-    }
-    user_model.getUser(param)
-    .then(function(rtn){
-            var defer = promise.defer();
-            if(rtn.length!=1){
-                defer.reject();
-                return defer.promise;
-            }
-            pointParam.memSeq = rtn[0].memSeq;
-            pointParam.addPnt = param.addPnt;
-            pointParam.regDt = param.timeStp?param.timeStp:moment().toDate();
-            point_model.addPnt(pointParam)
-            .then(function(rtn){
-                    defer.resolve({status:true})
-                },function(){
-                    defer.resolve({status:false})
-                });
-            return defer.promise;
-        }).done(function(rtn){
-            if(!rtn.status){
+    util.check_permission(token)
+        .then(function(ad){
+            if(!ad.status){
                 res.send({
-                    resultCode : 500,
-                    message : message[500]
+                    resultCode : 503,
+                    message : message[503]
                 })
             }else{
-                res.send({
-                    resultCode : 200,
-                    result : null
-                })
+                var pointParam = {adminSeq:ad.adminSeq,admNm:ad.admNm};
             }
-        },function(err){
-            res.send({
-                resultCode : 501,
-                message : message[501]
-            })
+            return pointParam;
         })
+        .then(function(pointParam){
+            if(pointParam)
+            user_model.getUser(param)
+                .then(function(rtn){
+                    var defer = promise.defer();
+                    if(rtn.length!=1){
+                        defer.reject();
+                        return defer.promise;
+                    }
+                    pointParam.memSeq = rtn[0].memSeq;
+                    pointParam.addPnt = param.addPnt;
+                    pointParam.regDt = param.timeStp?param.timeStp:moment().toDate();
+                    point_model.addPnt(pointParam)
+                        .then(function(rtn){
+                            defer.resolve({status:true})
+                        },function(){
+                            defer.resolve({status:false})
+                        });
+                    return defer.promise;
+                }).done(function(rtn){
+                    if(!rtn.status){
+                        res.send({
+                            resultCode : 500,
+                            message : message[500]
+                        })
+                    }else{
+                        res.send({
+                            resultCode : 200,
+                            result : null
+                        })
+                    }
+                },function(err){
+                    res.send({
+                        resultCode : 501,
+                        message : message[501]
+                    })
+                })
+        });
 };
 
 exports.usePnt = function(req, res) {
     var param = req.body;
     var token = req.params.token;
-    var pointParam = {};
-    if(token==config.sampleAdmin.token){
-        pointParam.adminSeq = config.sampleAdmin.adminSeq;
-        pointParam.admNm = config.sampleAdmin.admNm;
-    }else if(token==config.leonAdmin.token){
-        pointParam.adminSeq = config.leonAdmin.adminSeq;
-        pointParam.admNm = config.leonAdmin.admNm;
-    }
-    user_model.getUser(param)
-        .then(function(rtn){
-            var defer = promise.defer();
-            if(rtn.length!=1){
-                defer.reject();
-                return defer.promise;
-            }
-            pointParam.memSeq = rtn[0].memSeq;
-            pointParam.usePnt = param.usePnt;
-            pointParam.pntType = param.pntType;
-            pointParam.regDt = param.timeStp?param.timeStp:moment().toDate();
-            point_model.usePnt(pointParam)
-                .then(function(rtn){
-                    defer.resolve({status:true})
-                },function(err){
-                    defer.resolve({status:false,message:err.message})
-                });
-            return defer.promise;
-        }).done(function(rtn){
-            if(!rtn.status){
+    util.check_permission(token)
+        .then(function(ad){
+            if(!ad.status){
                 res.send({
-                    resultCode : 500,
-                    message : rtn.message
+                    resultCode : 503,
+                    message : message[503]
                 })
             }else{
-                res.send({
-                    resultCode : 200,
-                    result : null
-                })
+                var pointParam = {adminSeq:ad.adminSeq,admNm:ad.admNm};
             }
-        },function(err){
-            res.send({
-                resultCode : 501,
-                message : message[501]
-            })
+            return pointParam;
         })
+        .then(function(pointParam){
+            if(pointParam)
+                user_model.getUser(param)
+                .then(function(rtn){
+                    var defer = promise.defer();
+                    if(rtn.length!=1){
+                        defer.reject();
+                        return defer.promise;
+                    }
+                    pointParam.memSeq = rtn[0].memSeq;
+                    pointParam.usePnt = param.usePnt;
+                    pointParam.pntType = param.pntType;
+                    pointParam.regDt = param.timeStp?param.timeStp:moment().toDate();
+                    point_model.usePnt(pointParam)
+                        .then(function(rtn){
+                            defer.resolve({status:true})
+                        },function(err){
+                            defer.resolve({status:false,message:err.message})
+                        });
+                    return defer.promise;
+                }).done(function(rtn){
+                    if(!rtn.status){
+                        res.send({
+                            resultCode : 500,
+                            message : rtn.message
+                        })
+                    }else{
+                        res.send({
+                            resultCode : 200,
+                            result : null
+                        })
+                    }
+                },function(err){
+                    res.send({
+                        resultCode : 501,
+                        message : message[501]
+                    })
+                })
+        })
+
 };
 
 exports.statPntAll = function(req, res) {
@@ -169,42 +220,49 @@ exports.hc = function(req, res) {
 exports.memInfo = function(req,res){
     var param = req.body;
     var token = req.params.token;
-    var memParam = {};
-    if(token==config.sampleAdmin.token){
-        memParam.upId = config.sampleAdmin.adminSeq;
-    }else if(token==config.leonAdmin.token){
-        memParam.upId = config.leonAdmin.adminSeq;
-    }
 
     var result = {resultCode:200};
-
     if(!param.memEmail){
         result.message='M03';
         res.send(result);
         return null;
     }
 
-    var infoRmkCd = param.infoRmkCd;
-    user_model.getUser({memCd:'2',memInfo:param.memEmail})
-        .then(function(rtn){
-            if(infoRmkCd==1){  //join
-                if(rtn.length>0){
-                    result.message='M02';
-                    res.send(result);
-                    return null;
-                }
-            }else{             //udt / del
-                if(rtn.length==0){
-                    result.message='M03';
-                    res.send(result);
-                    return null;
-                }
-                param.memSeq = rtn[0].memSeq;
+    util.check_permission(token)
+        .then(function(ad){
+            if(!ad.status){
+                res.send({
+                    resultCode : 503,
+                    message : message[503]
+                })
+            }else{
+                var memParam = {upId:ad.adminSeq,admNm:ad.admNm};
             }
+            return memParam;
+        })
+        .then(function(memParam){
+            if(memParam)
+                user_model.getUser({memCd:'2',memInfo:param.memEmail})
+                    .then(function(rtn){
+                        if(param.infoRmkCd==1){  //join
+                            if(rtn.length>0){
+                                result.message='M02';
+                                res.send(result);
+                                return null;
+                            }
+                        }else{             //udt / del
+                            if(rtn.length==0){
+                                result.message='M03';
+                                res.send(result);
+                                return null;
+                            }
+                            param.memSeq = rtn[0].memSeq;
+                        }
 
-            writeBatch(param).then(function(){
-                res.send(result);
-            });
+                        writeBatch(param).then(function(){
+                            res.send(result);
+                        });
+                    });
         });
 };
 

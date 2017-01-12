@@ -9,7 +9,7 @@ exports.getUser = function(param){
     sql = 'select memSeq from tblMem where isDel = 0 ';
     var findParam = param.memInfo?param.memInfo:'';
     if(param.memCd){
-        switch(param.memCd.toString()){
+        switch((parseInt(param.memCd)).toString()){
             case '1' : sql+='and memPne like ?';
                 break;
             case '2' : sql+='and memEmail like ?';
@@ -25,7 +25,6 @@ exports.getUser = function(param){
 };
 
 exports.editUser = function(param){
-    console.log('---------coms useredit')
     var sql = '';
     var editParam = [];
     if(param.infoRmkCd==1){
@@ -123,4 +122,10 @@ exports.editCar = function(param){
         });
 
     return defer.promise;
+};
+
+exports.check_permission = function(param){
+    sql = 'select memSeq as adminSeq,memName as admNm from tblMem where memEmail like ?';
+
+    return db.query(sql,param.memEmail);
 };
