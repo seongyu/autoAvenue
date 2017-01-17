@@ -11,7 +11,8 @@ exports.message = {
     500 : 'Error : Processing denied',
     501 : 'Error : Unavailable Parameter exists',
     502 : 'Error : Parameter error',
-    503 : 'Error : Permission denied'
+    503 : 'Error : Permission denied',
+    510 : 'Error : Request Timeout error.'
 };
 
 util.check_permission = function(token){

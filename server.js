@@ -5,6 +5,7 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
+var timeout = require('connect-timeout');
 var port = process.env.NODE_ENV=='production' ? 80 : 3000;
 var routes = require('./routes/index');
 var fs = require('fs');
@@ -52,8 +53,12 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
-
+app.use(timeout('5s'),prvTimeout);
 app.use('/', routes);
+
+function prvTimeout(req,res,next){
+  res.status(200).send({resultCode:510,message:'Error : Request Timeout error.'})
+};
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
@@ -85,6 +90,8 @@ app.use(function(err, req, res, next) {
     error: {}
   });
 });
+
+app.timeout = 1000;
 
 app.listen(port,function(){
   console.log('Server started successfully width '+port);
