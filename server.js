@@ -53,7 +53,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
-app.use(timeout('5s'),prvTimeout);
+app.use(timeout('5s'));
 app.use('/', routes);
 
 function prvTimeout(req,res,next){
