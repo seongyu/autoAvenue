@@ -100,6 +100,11 @@ exports.addPnt = function(req, res) {
                         message : message[501]
                     })
                 })
+        },function(err){
+            res.send({
+                resultCode : 501,
+                message : message[501]
+            })
         });
 };
 
@@ -156,6 +161,11 @@ exports.usePnt = function(req, res) {
                         message : message[501]
                     })
                 })
+        },function(err){
+            res.send({
+                resultCode : 501,
+                message : message[501]
+            })
         })
 
 };
@@ -209,6 +219,11 @@ exports.statPntAll = function(req, res) {
                         message : message[501]
                     })
                 })
+        },function(err){
+            res.send({
+                resultCode : 501,
+                message : message[501]
+            })
         })
 
 };
@@ -263,6 +278,11 @@ exports.memInfo = function(req,res){
                             res.send(result);
                         });
                     });
+        },function(err){
+            res.send({
+                resultCode : 501,
+                message : message[501]
+            })
         });
 };
 
@@ -308,6 +328,11 @@ exports.stepbatch = function(req,res){
                 res.setHeader('Content-disposition', 'attachment; filename=' + filename);
                 res.download(filename);
             });
+        },function(err){
+            res.send({
+                resultCode : 501,
+                message : message[501]
+            })
         })
     }catch(exception){
         //fs.unlinkSync(batchUrl);
