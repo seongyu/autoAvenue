@@ -100,10 +100,15 @@ exports.addPnt = function(req, res) {
                         message : message[501]
                     })
                 })
+            else
+                res.send({
+                    resultCode : 503,
+                    message : message[503]
+                })
         },function(err){
             res.send({
-                resultCode : 501,
-                message : message[501]
+                resultCode : 504,
+                message : message[504]
             })
         });
 };
@@ -161,10 +166,15 @@ exports.usePnt = function(req, res) {
                         message : message[501]
                     })
                 })
+            else
+                res.send({
+                    resultCode : 503,
+                    message : message[503]
+                })
         },function(err){
             res.send({
-                resultCode : 501,
-                message : message[501]
+                resultCode : 504,
+                message : message[504]
             })
         })
 
@@ -181,50 +191,66 @@ exports.statPntAll = function(req, res) {
         totalPage : 0,
         total : 0
     };
-    user_model.getUser(param)
-        .then(function(rtn){
-            if(param.memCd&&rtn.length==0){
-                result.rows = [];
+
+    var token = req.params.token;
+console.log(param)
+    util.check_permission(token)
+        .then(function(ad){
+            var returnp = {};
+            if(!ad.status){
                 res.send({
-                    resultCode : 200,
-                    result : result
+                    resultCode : 503,
+                    message : message[503]
                 });
-                return;
+            }else{
+                returnp = {upId:ad.adminSeq,admNm:ad.admNm};
             }
-            rtn.length>0?getParam.memSeq = rtn[0].memSeq : null;
-            param.pntType?getParam.pntType = param.pntType : null;
-            point_model.statPntCnt(getParam)
-            .then(function(rows){
-                    result.nowPage = page;
-                    result.totalPage = Math.ceil(rows[0].countNum/limit);
-                    result.total = rows[0].countNum;
-                    getParam.page = pageS;
-                    getParam.limit = limit;
-                    point_model.statPntAll(getParam)
-                        .then(function(rows){
-                            result.rows = rows;
-                            res.send({
-                                resultCode : 200,
-                                result : result
-                            })
-                        },function(err){
-                            res.send({
-                                resultCode : 501,
-                                message : message[501]
-                            })
-                        });
-                },function(err){
-                    res.send({
-                        resultCode : 501,
-                        message : message[501]
+            return returnp;
+        })
+        .then(function(memParam){
+            if(memParam){
+                param.memCd?getParam.memCd = param.memCd : null;
+                param.memInfo?getParam.memInfo = param.memInfo : null;
+                param.pntType?getParam.pntType = param.pntType : null;
+                point_model.statPntCnt(getParam)
+                    .then(function(rows){
+                        result.nowPage = page;
+                        result.totalPage = Math.ceil(rows[0].countNum/limit);
+                        result.total = rows[0].countNum;
+                        getParam.page = pageS;
+                        getParam.limit = limit;
+                        point_model.statPntAll(getParam)
+                            .then(function(rows){
+                                result.rows = rows;
+                                res.send({
+                                    resultCode : 200,
+                                    result : result
+                                })
+                            },function(err){
+                                res.send({
+                                    resultCode : 501,
+                                    message : message[501]
+                                })
+                            });
+                    },function(err){
+                        res.send({
+                            resultCode : 501,
+                            message : message[501]
+                        })
                     })
+            }else{
+                res.send({
+                    resultCode : 503,
+                    message : message[503]
                 })
+            }
         },function(err){
             res.send({
-                resultCode : 501,
-                message : message[501]
+                resultCode : 504,
+                message : message[504]
             })
-        })
+        });
+
 
 };
 
@@ -278,10 +304,15 @@ exports.memInfo = function(req,res){
                             res.send(result);
                         });
                     });
+            else
+                res.send({
+                    resultCode : 503,
+                    message : message[503]
+                })
         },function(err){
             res.send({
-                resultCode : 501,
-                message : message[501]
+                resultCode : 504,
+                message : message[504]
             })
         });
 };

@@ -6,22 +6,33 @@ var db = require('../public/lib/database'),
     sql= '';
 
 exports.getUser = function(param){
-    sql = 'select memSeq from tblMem where isDel = 0 ';
-    var findParam = param.memInfo?param.memInfo:'';
-    if(param.memCd){
+    var defer = promise.defer();
+
+    var memCd = param.memCd;
+    var memInfo = param.memInfo;
+    var findParam = '';
+    if(memCd&&memInfo&&parseInt(param.memCd)){
+        sql = 'select memSeq from tblMem where isDel = 0 ';
+
+        findParam = param.memInfo;
         switch((parseInt(param.memCd)).toString()){
             case '1' : sql+='and memPne like ?';
                 break;
             case '2' : sql+='and memEmail like ?';
                 break;
-            default : sql+='limit 0';
-                break;
         }
+
+        db.query(sql,findParam)
+            .then(function(rtn){
+                defer.resolve(rtn);
+            },function(err){
+                defer.reject();
+            });
     }else{
-        sql+='limit 0';
+        defer.reject();
     }
 
-    return db.query(sql,findParam);
+    return defer.promise;
 };
 
 exports.editUser = function(param){

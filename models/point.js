@@ -76,15 +76,24 @@ exports.statPntCnt = function(param){
     sql = 'select count(*) as countNum from tblPnt as tp ' +
     'left join tblMem as tm on tp.memSeq = tm.memSeq ';
 
-    if(param.memSeq&&param.pntType){
-        sql+='where tp.memSeq = ? and tp.status = ? ';
-        getParam.push(param.memSeq,param.pntType);
-    }else if(param.memSeq){
-        sql+='where tp.memSeq = ? ';
+    var wherei = 0;
+    if(param.memCd=='1'){
+        wherei==0? sql+='where ':sql+='and ';
+        sql+=' tm.memPne like ? ';
 
-        getParam.push(param.memSeq);
-    }else if(param.pntType){
-        sql+='where tp.status = ? ';
+        getParam.push(param.memInfo);
+        wherei++;
+    }else if(param.memCd=='2'){
+        wherei==0? sql+='where ':sql+='and ';
+        sql+=' tm.memEmail like ? ';
+
+        getParam.push(param.memInfo);
+        wherei++;
+    }
+
+    if(param.pntType){
+        wherei==0? sql+='where ':sql+='and ';
+        sql+=' tp.status = ? ';
 
         getParam.push(param.pntType);
     }
@@ -99,18 +108,27 @@ exports.statPntAll = function(param){
     'from tblPnt as tp ' +
     'left join tblMem as tm on tp.memSeq = tm.memSeq ';
 
-     if(param.memSeq&&param.pntType){
-         sql+='where tp.memSeq = ? and tp.status = ? ';
-         getParam.push(param.memSeq,param.pntType);
-     }else if(param.memSeq){
-         sql+='where tp.memSeq = ? ';
+    var wherei = 0;
+    if(param.memCd=='1'){
+        wherei==0? sql+='where ':sql+='and ';
+        sql+=' tm.memPne like ? ';
 
-         getParam.push(param.memSeq);
-     }else if(param.pntType){
-         sql+='where tp.status = ? ';
+        getParam.push(param.memInfo);
+        wherei++;
+    }else if(param.memCd=='2'){
+        wherei==0? sql+='where ':sql+='and ';
+        sql+=' tm.memEmail like ? ';
 
-         getParam.push(param.pntType);
-     }
+        getParam.push(param.memInfo);
+        wherei++;
+    }
+
+    if(param.pntType){
+        wherei==0? sql+='where ':sql+='and ';
+        sql+=' tp.status = ? ';
+
+        getParam.push(param.pntType);
+    }
 
     sql+= 'order by tp.regDt desc limit ?,?';
     getParam.push(param.page,param.limit);
