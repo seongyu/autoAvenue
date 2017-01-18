@@ -13,7 +13,7 @@ var sslport = 443;
 var routes = require('./routes/index');
 var fs = require('fs');
 var app = express();
-
+app.use(ensureSec);
 // Add Headers
 app.all('*', function(req, res,next) {
   /**
@@ -36,6 +36,9 @@ app.all('*', function(req, res,next) {
   res.header("Access-Control-Allow-Headers", (req.headers['access-control-request-headers']) ? req.headers['access-control-request-headers'] : "x-requested-with");
   res.header("Access-Control-Allow-Methods", (req.headers['access-control-request-method']) ? req.headers['access-control-request-method'] : responseSettings.AccessControlAllowMethods);
   console.log(req.headers["x-forwarded-proto"]);
+
+
+
   if ('OPTIONS' == req.method) {
     res.send(200);
   }else {
@@ -43,6 +46,13 @@ app.all('*', function(req, res,next) {
   }
 
 });
+
+function ensureSec(req, res, next){
+  if (req.headers["x-forwarded-proto"] === "https"){
+    return next();
+  }
+  res.redirect("https://" + req.headers.host + req.url);
+}
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
