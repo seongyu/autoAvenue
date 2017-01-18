@@ -12,6 +12,7 @@ exports.message = {
     501 : 'Error : Unavailable Parameter exists',
     502 : 'Error : Parameter error',
     503 : 'Error : Permission denied',
+    504 : 'Error : Permission error',
     510 : 'Error : Request Timeout error.'
 };
 
@@ -22,10 +23,12 @@ util.check_permission = function(token){
         result.status=true;
         result.adminSeq = config.sampleAdmin.adminSeq;
         result.admNm = config.sampleAdmin.admNm;
+        defer.resolve(result);
     }else if(token==config.leonAdmin.token){
         result.status=true;
         result.adminSeq = config.leonAdmin.adminSeq;
         result.admNm = config.leonAdmin.admNm;
+        defer.resolve(result);
     }else if(token.indexOf('@')>0){
         user_model.check_permission({memEmail:token})
             .then(function(rtn){
