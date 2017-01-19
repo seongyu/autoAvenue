@@ -9,7 +9,6 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var timeout = require('connect-timeout');
 var port = process.env.NODE_ENV=='production' ? 80 : 3000;
-var sslport = 443;
 var routes = require('./routes/index');
 var fs = require('fs');
 var app = express();
@@ -101,15 +100,3 @@ app.use(function(err, req, res, next) {
 http.createServer(app).listen(port,function(){
   console.log('server started on port : '+port)
 });
-//var tt = fs.isFile('public/assets/key.pem');
-//console.log(tt);
-//if(tt){
-//  var httpsOption = {
-//    key: fs.readFileSync('key.pem'),
-//    cert: fs.readFileSync('cert.pem')
-//  };
-//
-//  https.createServer(httpsOption, app).listen(sslport, function(){
-//    console.log("Https server listening on port " + sslport);
-//  });
-//}
