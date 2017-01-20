@@ -33,16 +33,19 @@ Tunnel(config.ssh,function(err, server){
 
     exports.query = function(sql,param){
         var defer = promise.defer();
-
-        send_query = pool.query(sql,param,function(err,rows){
-            logQuery(send_query.sql);
-            if(err){
-                defer.reject(err)
-            }else{
-                rows = JSON.parse(JSON.stringify(rows));
-                defer.resolve(rows);
-            }
+        pool.getConnection(function(err, conn) {
+            send_query = conn.query(sql,param,function(err,rows){
+                logQuery(send_query.sql);
+                if(err){
+                    defer.reject(err)
+                }else{
+                    rows = JSON.parse(JSON.stringify(rows));
+                    defer.resolve(rows);
+                }
+                conn.release();
+            });
         });
+
 
         return defer.promise;
     };
