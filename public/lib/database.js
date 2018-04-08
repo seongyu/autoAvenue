@@ -9,7 +9,7 @@ var mysql = require('mysql'),
     promise = require("q");
 var config = {
     ssh : {
-        host: '52.78.241.59',
+        host: 'localhost',
         port: 22,
         username: 'ubuntu',
         privateKey: require('fs').readFileSync("public/assets/autoavenue4.pem"),
